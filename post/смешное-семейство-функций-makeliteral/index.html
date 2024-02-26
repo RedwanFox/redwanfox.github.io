@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru-ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Смешное Семейство Функций MakeLiteral | Power Of The Sword Derivative</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      <li><a href="/about/">About</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+
+<div class="article-meta">
+<h1><span class="title">Смешное Семейство Функций MakeLiteral</span></h1>
+
+<h2 class="date">2024/02/26</h2>
+<p class="terms">
+  
+  
+  
+  
+  Tags: <a href="/tags/unreal">Unreal</a> 
+  
+  
+</p>
+</div>
+
+
+<main>
+<p>Наткнулся в анриле в стандартной библиотеке на набор функций <code>MakeLiteral...</code> вида</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">/**  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * Creates a literal float * @param   Value  value to set the float to * @return  The literal float */</span>
+</span></span><span style="display:flex;"><span>UFUNCTION(BlueprintPure, Category<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Math|Float&#34;</span>, meta<span style="color:#f92672">=</span>(BlueprintThreadSafe))
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">static</span> ENGINE_API <span style="color:#66d9ef">float</span> MakeLiteralFloat(<span style="color:#66d9ef">float</span> Value);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>FORCEINLINE <span style="color:#66d9ef">float</span> UKismetSystemLibrary<span style="color:#f92672">::</span>MakeLiteralFloat(<span style="color:#66d9ef">float</span> Value) { 
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> Value; 
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>с вариациями на большинство примитивных типов. Как, на хрена и зачем?</p>
+<p>Эта функция не для кастов. В C++ касты можно делать нормально, и для движковой машинерии есть свои специализированные касты.</p>
+<p>Эта функция выставлена в блюпринты. Ок, значит зачем-то она нужна в скриптах. Может быть там в скриптах она нужна для каста? Тоже нет, там есть свои касты, которые автоматом вставляются в код, при попытке туда сунуть не float.</p>
+<p>Значит, единственный кейс это дать возможность делать вот так:</p>
+<p><img src="/images/2024-02-26_10-12-33.png" alt="img1"></p>
+<p>но MakeLiteralFloat это BlueprintPure функция, которая не кеширует свой результат в графе, а движок не соптимизирует ее вызов до чтения из константы. -&gt; Это хуже чем локальную переменную завести.</p>
+<p>Провел небольшой эксперимент. Завел</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>UFUNCTION(BlueprintPure, meta<span style="color:#f92672">=</span>(BlueprintThreadSafe))  
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">float</span> MyMakeLiteralFloat(<span style="color:#66d9ef">float</span> Val);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">float</span> UMyBlueprintFunctionLib<span style="color:#f92672">::</span>MyMakeLiteralFloat(<span style="color:#66d9ef">float</span> Val)  
+</span></span><span style="display:flex;"><span>{  
+</span></span><span style="display:flex;"><span>    UE_LOG(LogTemp, Warning, TEXT(<span style="color:#e6db74">&#34;get val %f&#34;</span>), Val);  
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> Val;  
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>и использовал в следующих сценариях</p>
+<p><img src="/images/2024-02-26_09-45-50.png" alt="img2"></p>
+<p><strong>Ожидание</strong>: на каждый вызов умножения из обычной блюпринт ноды дважды дернется логирование в MyMakeLiteralFloat.</p>
+<p><strong>Реальность</strong>: дергается только один раз.</p>
+<p>Можно было бы подумать на метку BlueprintThreadSafe, но она просто разрешает выполнять такую функцию из скрипта не в game thread и не делает никаких иных телодвижений.</p>
+<p>-&gt; какая-то оптимизация все таки есть и интерпретатор блюпринтов считает весь подграф blueprintpure вызовов как единый blueprintpure вызов.</p>
+<p><em>Надо отметить отдельно, что blueprintpure не является чистой функцией с точки зрения математического определения/функционального программирования, но это совсем другая история</em></p>
+<p>Подытоживая, можно сказать, что:</p>
+<ol>
+<li>мы на проекте используем 5.0.3 версию движка, а в 5.1 этот цирк депрекейтнули.</li>
+<li>Поведение блюпринтов очередной раз показывает себя менее очевидным, чем кажется.</li>
+</ol>
+
+</main>
+
+  <footer>
+  
+  
+  <hr/>
+  © <a href="https://github.com/RedwanFox">Github</a> | <a href="https://t.me/power_of_the_sword_derivative">Telegram</a>
+  
+  </footer>
+  </body>
+</html>
+
