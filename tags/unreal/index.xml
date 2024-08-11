@@ -4,15 +4,15 @@
     <title>Unreal on Power Of The Sword Derivative</title>
     <link>https://redwanfox.github.io/tags/unreal/</link>
     <description>Recent content in Unreal on Power Of The Sword Derivative</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <generator>Hugo</generator>
     <language>ru-ru</language>
     <lastBuildDate>Mon, 26 Feb 2024 09:58:34 +0300</lastBuildDate>
     <atom:link href="https://redwanfox.github.io/tags/unreal/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Смешное Семейство Функций MakeLiteral</title>
-      <link>https://redwanfox.github.io/post/%D1%81%D0%BC%D0%B5%D1%88%D0%BD%D0%BE%D0%B5-%D1%81%D0%B5%D0%BC%D0%B5%D0%B9%D1%81%D1%82%D0%B2%D0%BE-%D1%84%D1%83%D0%BD%D0%BA%D1%86%D0%B8%D0%B9-makeliteral/</link>
+      <link>https://redwanfox.github.io/post/2024-02-26.-%D1%81%D0%BC%D0%B5%D1%88%D0%BD%D0%BE%D0%B5-%D1%81%D0%B5%D0%BC%D0%B5%D0%B9%D1%81%D1%82%D0%B2%D0%BE-%D1%84%D1%83%D0%BD%D0%BA%D1%86%D0%B8%D0%B9-makeliteral/</link>
       <pubDate>Mon, 26 Feb 2024 09:58:34 +0300</pubDate>
-      <guid>https://redwanfox.github.io/post/%D1%81%D0%BC%D0%B5%D1%88%D0%BD%D0%BE%D0%B5-%D1%81%D0%B5%D0%BC%D0%B5%D0%B9%D1%81%D1%82%D0%B2%D0%BE-%D1%84%D1%83%D0%BD%D0%BA%D1%86%D0%B8%D0%B9-makeliteral/</guid>
+      <guid>https://redwanfox.github.io/post/2024-02-26.-%D1%81%D0%BC%D0%B5%D1%88%D0%BD%D0%BE%D0%B5-%D1%81%D0%B5%D0%BC%D0%B5%D0%B9%D1%81%D1%82%D0%B2%D0%BE-%D1%84%D1%83%D0%BD%D0%BA%D1%86%D0%B8%D0%B9-makeliteral/</guid>
       <description>Наткнулся в анриле в стандартной библиотеке на набор функций MakeLiteral... вида&#xA;/** * Creates a literal float * @param Value value to set the float to * @return The literal float */ UFUNCTION(BlueprintPure, Category=&amp;#34;Math|Float&amp;#34;, meta=(BlueprintThreadSafe)) static ENGINE_API float MakeLiteralFloat(float Value); FORCEINLINE float UKismetSystemLibrary::MakeLiteralFloat(float Value) { return Value; } с вариациями на большинство примитивных типов. Как, на хрена и зачем?&#xA;Эта функция не для кастов. В C++ касты можно делать нормально, и для движковой машинерии есть свои специализированные касты.</description>
     </item>
   </channel>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru-ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Продолжаем погружение 2 | Power Of The Sword Derivative</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      <li><a href="/about/">About</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+
+<div class="article-meta">
+<h1><span class="title">Продолжаем погружение 2</span></h1>
+
+<h2 class="date">2022/02/19</h2>
+<p class="terms">
+  
+  
+  
+  
+  Tags: <a href="/tags/%D1%80%D0%B0%D0%B7%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B0">разработка</a> <a href="/tags/godot">godot</a> 
+  
+  
+</p>
+</div>
+
+
+<main>
+<h2 id="навигация-ботов">Навигация ботов</h2>
+<p>Потестил стандартный функционал по навигации в 2d-пространстве, встроенный в движок. Сам функционал достаточно удобный: если пользоваться tilemap-ами движок сам собирает navmesh из настроек тайлов, после просто дергаешь функцию &ldquo;построй маршрут от и до&rdquo;, и в ответ приходит вектор точек маршрута. Звучит слишком легко, не правда ли? Что может пойти не так? А может пойти все.</p>
+<p>Тестим построение маршрута:</p>
+<p><img src="1.jpg" alt="Голубой - дебажное отображение navmesh">
+Голубой - дебажное отображение navmesh</p>
+<p>Хоба! Скачок через стену. Что-то совсем идет не так. Тестовую карту я рисовал от руки случайным образом и предположил, что navmesh может разносить в зависимости от порядка зарисовки тайлами.</p>
+<p><img src="2.jpg" alt=""></p>
+<p>Хоба 2, эзотерическая! Маршрут скачет не просто сквозь стенки, а соединяет несколько несвязанных navmesh-ей. Пошел курить bugtracker движка и нашел следующий <a href="https://github.com/godotengine/godot/issues/56852">тикет</a>. TLDR в новой версии движка (3.5) обновили дефолты настроек и значение &ldquo;искать ближайшую точку в navmesh-е при отсутствии прямой связанности на расстоянии X пикселях&rdquo; стало равным 100. При размере тайла 16х16 и нативном разрешении игры в 420х270 получалось, что можно скакнуть больше чем на пол экрана. Прибил гвоздями настройку в 1 пиксель и все заработало нормально.</p>
+<p>Производительность навигации проверять не пришлось - добрый человек сделал <a href="https://github.com/Miziziziz/GodotPerformanceTests">бенчмарки</a>. Буду использовать ее, пока не прижмет.</p>
+<h2 id="приключения-с-генерацией-карт">Приключения с генерацией карт</h2>
+<p>Чтобы использовать навигацию ботов нужна местность. На тестовых картах далеко не уедешь, надо генерить.</p>
+<p>Есть много способов рандомной генерации карт:</p>
+<ol>
+<li>Binary Space Partitioning</li>
+<li>Клеточные автоматы</li>
+<li>Wave Collapse Functions</li>
+<li>Tunnelers</li>
+<li>И тд и тп.</li>
+</ol>
+<p>Взял на вооружение tunnelers, как наиболее интересные для моего случая - повозиться с игровым ИИ.</p>
+<p>Суть такова: есть пустая карта. Пускаем на нее автоматических агентов, которые или строят стены, или, наоборот, прогрызают в ней туннели и комнаты. У агентов есть свой изменяемый стейт, а также они могут плодить другие агенты. А еще этот принцип генерации хорошо интегрируется со сделанными от руки кусками карты.</p>
+<p>Нормальных статей про них в интернете полторы штуки: <a href="https://www.gridsagegames.com/blog/2014/06/mapgen-tunneling-algorithm/">статья</a> от автора рогалика Cogmind, который в свою очередь ссылается на <a href="http://dungeonmaker.sourceforge.net/DM2_Manual/index.html">документацию</a> мертвого опенсорс проекта DungeonMaker (последний релиз 2006 года). Библиотека под GPL и ее не заинтегрируешь, поэтому решил просто ее изучить и написать свою либу.</p>
+<p>Это оказалось очень правильным решением. Библиотека написана в &ldquo;лучших&rdquo; традициях военного и математического кода - однобуквенные переменные, goto, гигантские, почти идентичные между собой, портянки логики, прочая лапша.</p>
+<p>Для своего решения принял следующие дизайнерские решения:</p>
+<ol>
+<li>Поддержать тестовые сценарии из DungeonMaker, чтобы можно было наглядно видеть результаты работы и меньше тыкаться.</li>
+<li>Data-driven поведение + плотная интеграция с godot. Не хочу писать свои конфижики, хочу работать через стандартную движковую систему ресурсов.</li>
+<li>Писать сразу на c++, для простоты переиспользования.</li>
+<li>Впоследствии перетащить логику агентов на btree, чтобы ими рулить единообразно и удобно переиспользовать логику.</li>
+</ol>
+<p>Первые же проблемы начались при попытке интегрировать конфиг в движок. В godot есть стандартный plain old data-тип Resource дающий автоматическую движковую сериализацию (и учет ссылок) и, от которого, можно наследовать свои типы ресурсов. Чтобы ресурс (или любое другой тип данных) был виден в окошках редактора надо его заэкспортить. Вот только выяснилось, что экспорт работает только для примитивных типов и для встроенных типов ресурсов. Казалось бы финита ля комедия, но нашел следующий <a href="https://github.com/godotengine/godot-proposals/issues/18">пропозал</a> и его <a href="https://github.com/godotengine/godot/pull/44879">реализацию</a>, уже год ждущую заливки в основную ветку. Черрипикнул к себе и казалось бы все заработало. Но увы нет.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>export (Resource) var MyResource
+</span></span><span style="display:flex;"><span>export (Array, Resource) var MyResourceArray
+</span></span></code></pre></div><p>В c++ все куда тяжеловеснее</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>register_property<span style="color:#f92672">&lt;</span>ParentType, Ref<span style="color:#f92672">&lt;</span>ResourceType<span style="color:#f92672">&gt;&gt;</span>(<span style="color:#e6db74">&#34;MyResource&#34;</span>, <span style="color:#f92672">&amp;</span>ParentType<span style="color:#f92672">::</span>MyResource, Ref<span style="color:#f92672">&lt;</span>ResourceType<span style="color:#f92672">&gt;</span>(),
+</span></span><span style="display:flex;"><span>           GODOT_METHOD_RPC_MODE_DISABLED,
+</span></span><span style="display:flex;"><span>           GODOT_PROPERTY_USAGE_DEFAULT,
+</span></span><span style="display:flex;"><span>           GODOT_PROPERTY_HINT_RESOURCE_TYPE, <span style="color:#75715e">// &lt;-- вот этот енум подсказывает какой вид вьюхи показывает редактор. Он почти незадокументирован.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>           <span style="color:#e6db74">&#34;ResourceType&#34;</span>); <span style="color:#75715e">// сериализованный в строку хинт для вьюхи о передаваемом типе. Тоже почти незадокументирована. Зависит от значения енума
+</span></span></span></code></pre></div><p>Для массивов, естественно, отличается все. Enum value, определяющий тип. другой, а хинт-строка собирается вообще незнамо как. Пришлось лезть в исходники движка. Строчка хинта вышла такой &ldquo;17:17/ResourceType&rdquo;. Подробности <a href="https://github.com/godotengine/godot/blob/a086a61aefb6369c649e320d56233c2d2bdb5513/modules/gdscript/gdscript_parser.cpp#L4703">тут</a></p>
+<p>Дойдут руки, сделаю пуллреквест с документацией.</p>
+
+</main>
+
+  <footer>
+  
+  
+  <hr/>
+  © <a href="https://github.com/RedwanFox">Github</a> | <a href="https://t.me/power_of_the_sword_derivative">Telegram</a>
+  
+  </footer>
+  </body>
+</html>
+
