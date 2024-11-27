@@ -6,14 +6,21 @@
     <description>Recent content in Unreal on Power Of The Sword Derivative</description>
     <generator>Hugo</generator>
     <language>ru-ru</language>
-    <lastBuildDate>Mon, 26 Feb 2024 09:58:34 +0300</lastBuildDate>
+    <lastBuildDate>Thu, 15 Aug 2024 15:20:40 +0300</lastBuildDate>
     <atom:link href="https://redwanfox.github.io/tags/unreal/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>GameplayTargetingSystem vs TargetDataFilters</title>
+      <link>https://redwanfox.github.io/post/gameplaytargetingsystem-vs-tdf/</link>
+      <pubDate>Thu, 15 Aug 2024 15:20:40 +0300</pubDate>
+      <guid>https://redwanfox.github.io/post/gameplaytargetingsystem-vs-tdf/</guid>
+      <description>&lt;p&gt;asdasdasd&#xA;хуй пизда джигурда&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Смешное Семейство Функций MakeLiteral</title>
       <link>https://redwanfox.github.io/post/2024-02-26.-%D1%81%D0%BC%D0%B5%D1%88%D0%BD%D0%BE%D0%B5-%D1%81%D0%B5%D0%BC%D0%B5%D0%B9%D1%81%D1%82%D0%B2%D0%BE-%D1%84%D1%83%D0%BD%D0%BA%D1%86%D0%B8%D0%B9-makeliteral/</link>
       <pubDate>Mon, 26 Feb 2024 09:58:34 +0300</pubDate>
       <guid>https://redwanfox.github.io/post/2024-02-26.-%D1%81%D0%BC%D0%B5%D1%88%D0%BD%D0%BE%D0%B5-%D1%81%D0%B5%D0%BC%D0%B5%D0%B9%D1%81%D1%82%D0%B2%D0%BE-%D1%84%D1%83%D0%BD%D0%BA%D1%86%D0%B8%D0%B9-makeliteral/</guid>
-      <description>Наткнулся в анриле в стандартной библиотеке на набор функций MakeLiteral... вида&#xA;/** * Creates a literal float * @param Value value to set the float to * @return The literal float */ UFUNCTION(BlueprintPure, Category=&amp;#34;Math|Float&amp;#34;, meta=(BlueprintThreadSafe)) static ENGINE_API float MakeLiteralFloat(float Value); FORCEINLINE float UKismetSystemLibrary::MakeLiteralFloat(float Value) { return Value; } с вариациями на большинство примитивных типов. Как, на хрена и зачем?&#xA;Эта функция не для кастов. В C++ касты можно делать нормально, и для движковой машинерии есть свои специализированные касты.</description>
+      <description>&lt;p&gt;Наткнулся в анриле в стандартной библиотеке на набор функций &lt;code&gt;MakeLiteral...&lt;/code&gt; вида&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;/**  &#xA;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * Creates a literal float * @param   Value  value to set the float to * @return  The literal float */&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;UFUNCTION(BlueprintPure, Category&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Math|Float&amp;#34;&lt;/span&gt;, meta&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;(BlueprintThreadSafe))&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; ENGINE_API &lt;span style=&#34;color:#66d9ef&#34;&gt;float&lt;/span&gt; MakeLiteralFloat(&lt;span style=&#34;color:#66d9ef&#34;&gt;float&lt;/span&gt; Value);&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;FORCEINLINE &lt;span style=&#34;color:#66d9ef&#34;&gt;float&lt;/span&gt; UKismetSystemLibrary&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;MakeLiteralFloat(&lt;span style=&#34;color:#66d9ef&#34;&gt;float&lt;/span&gt; Value) { &#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&#x9;&lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; Value; &#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;с вариациями на большинство примитивных типов. Как, на хрена и зачем?&lt;/p&gt;&#xA;&lt;p&gt;Эта функция не для кастов. В C++ касты можно делать нормально, и для движковой машинерии есть свои специализированные касты.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>
